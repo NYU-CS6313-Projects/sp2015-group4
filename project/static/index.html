@@ -1,0 +1,214 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title></title>
+    <!-- Load the D3 Library -->
+    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/d3/3.5.5/d3.min.js"> </script>
+    <script type="text/javascript" src="https://code.jquery.com/jquery-2.1.3.min.js"> </script>
+        <style type="text/css">
+        #detailView {
+        	border: solid 1px black;
+        	width: 320px;
+        	height: 100px;
+        }
+        #vizcontainerZoomed {
+        	border: solid 1px red;
+        	height: 240px;
+        	width: 320px;
+        	float: left;
+        }
+        #vizOverview {
+        	border: solid 1px red;
+        	height: 240px;
+        	width: 320px;
+        	float: left;
+        }
+        #vizWrapper {
+        	/* width: 1024px; */
+        	/*border: 1px solid black;*/
+        	overflow: hidden;
+        }
+        </style>
+</head>
+<body>
+	<hr />
+	<p>Input</p>
+	<form>
+	  Enter a date after 2009-04-01:
+	  <input type="date" id="startTime" value="2009-04-01" min="2009-04-01" max="2010-04-01"><br>
+	  Enter a date before 2010-04-01:
+	  <input type="date" id="endTime" value="2010-04-01" min="2009-04-01" max="2011-04-01"><br>
+	  Headcount less than:
+	  <input id="headCountLess" type="range" value="50" min="0" max="500" step="1" oninput="document.querySelector('#headCountLessLabel').innerHTML = value" />
+	  <output for="headCountLess" id="headCountLessLabel">50</output>
+	  <br />
+	  <!--
+	  Headcount more than:
+	  <input id="headCountMore" type="range" min="0" max="500" step="1" oninput="updateHeadCountSlider()" />
+	  <output for="headCountMore" id="headCountMoreLabel">50</output>
+	  -->
+	  <p><a href="#" onClick='doSubmit();'>Update</a></p>
+	</form>
+	<div id="detailView">
+		<span style="width: 320px;"></span>
+	</div>
+	<div id="vizWrapper">
+		<div id="vizcontainerZoomed">
+		</div>
+		<div id="vizOverview">
+		
+		</div>
+	</div>
+	
+	<script charset="utf-8">
+	
+function updateHeadCountSlider() {
+	
+	var headCountLess = document.querySelector('#headCountLess');
+	var headCountMore = document.querySelector('#headCountMore');
+	
+	if(headCountLess.value > headCountMore.value || headCountMore.value < headCountLess.value)
+		headCountMore.value = headCountLess.value + 1;
+	
+	document.querySelector('#headCountMoreLabel').value = headCountMore.value;
+	document.querySelector('#headCountLessLabel').value = headCountLess.value;
+	
+	//document.querySelector('#headCount').value = 5;
+	//document.querySelector('#volume').innerHTML = value;
+	//console.log("updated...");
+}
+	
+function doSubmit() {
+	
+	doVizZoomed();
+	
+}
+
+function doDetailView(d) {
+	//alert(d.name);
+	d3.select("#detailView")
+		.select("span")
+		.html(
+		"Group name: " + d.name + "<br />" +
+		"Date: " + new Date(d.time) + "<br />"
+		
+		);
+}
+
+function doVisMonthBarChart() {
+	// http://104.237.146.70:8124/listcatagories
+	// #vizcontainerMonthBarChart
+	
+	var vizcontainerMonthBarChart = document.querySelector('#vizcontainerMonthBarChart');
+	
+	var width = $('#vizcontainerMonthBarChart').css("width");
+	var height = $('#vizcontainerMonthBarChart').css("height");
+	
+	
+}
+
+function doVizZoomed() {
+	
+	var vizcontainerZoomed = document.querySelector('#vizcontainerZoomed');
+	
+	var width = parseInt($("#vizcontainerZoomed").css("width"));
+	var height = parseInt($("#vizcontainerZoomed").css("height"));
+	
+	
+    var startTime = document.getElementById("startTime").valueAsDate;
+    var endTime = document.getElementById("endTime").valueAsDate;
+    var headCountLess = document.getElementById("headCountLess").value;
+    
+    // Remove previous svg
+    d3.select("svg").remove(); 
+    
+    var svg = d3.select("#vizcontainerZoomed")
+    	.append("svg")
+    		//.attr("id", "#svg_id")
+    		.attr("width", width)
+    		.attr("height", height);
+    
+    // Generate scales
+    var scaleX = d3.scale.linear()
+    	.domain([startTime, endTime])
+    	.range([0, height]);
+    	
+    var scaleY = d3.scale.linear()
+    	.domain([0, headCountLess])
+    	.range([0, height]);
+    
+    
+    
+	var myColor = d3.scale.category20b = function() {
+		return d3.scale.ordinal().range(d3_category20b);
+	};
+    
+    
+    /*
+    // Probably can remove.
+    // This is something I should remember to do later, though
+    // that is, using nice()
+    var timeScale = d3.time.scale()
+    	.domain([startTime, endTime])
+    	.nice(d3.time.month)
+    	.range([0, height]);
+    */
+    
+    //104.237.146.70:8124
+    d3.json(
+    "/groups/?" +
+    "limit=20" + "&startTime="+ startTime +
+    "&endTime=" + endTime
+    ,
+    function(err, data) {
+    	if(err) {
+    		console.warn("ERROR");
+    		console.warn(err);
+    		return;
+    	}
+    	console.log(data);
+    	
+    	svg.selectAll("circle")
+    		.data(data).enter()
+    			.append("circle")
+    				.attr("r","5")
+    				.attr("cx", function(d) {return scaleX(d.time); })
+    				.attr("cy", function(d) {return scaleY(d.headcount); })
+//    				.attr("fill", function(d) {return myColor(
+    				.on("mouseover", doDetailView)
+    				
+    });
+    
+    
+	// Make the axis
+
+	
+	var xAxis = d3.svg.axis()
+		.scale(scaleX)
+		.orient("bottom")
+		.tickSize(0)
+		.tickFormat( d3.time.format('%Y-%m-%d'))
+		.tickValues([startTime, endTime]);
+	
+	svg.append("g").attr("class", "axis").call(xAxis);
+	
+
+	/*
+    var xAxis = d3.svg.axis().
+    scale(scaleX).
+    orient("bottom").
+    tickFormat(
+    function(d) { return d3.time.format('%b %d')(new Date(d)); });
+    
+    var yAxis = d3.svg.axis().scale(scaleY).orient("right");
+    
+    svg.append("g").attr("class", "axis").call(xAxis);
+    
+    svg.append("g").attr("class", "axis").call(yAxis); 
+    */
+}
+
+    </script>
+</body>
+</html>
