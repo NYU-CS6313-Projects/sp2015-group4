@@ -120,6 +120,8 @@ function doVizZoomed() {
     var endTime = document.getElementById("endTime").valueAsDate;
     var headCountLess = document.getElementById("headCountLess").value;
     
+    console.log("Start time:" + startTime);
+    
     // Remove previous svg
     d3.select("svg").remove(); 
     
@@ -154,6 +156,11 @@ function doVizZoomed() {
     	.nice(d3.time.month)
     	.range([0, height]);
     */
+    
+    //console.log("Requesting: ");
+    //console.log("/groups/?" +
+    //"limit=20" + "&startTime="+ startTime.getTime().toString() +
+    //"&endTime=" + endTime.getTime().toString());
     
     //104.237.146.70:8124
     d3.json(

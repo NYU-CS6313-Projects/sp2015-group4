@@ -40,9 +40,13 @@ app.get("/viz/*", fileHandler);
 app.all("/groups/*", allowAccessHeaders);
 app.get("/groups/*", groupsHandler);
 
+
+
 function groupsHandler(request, response) {
 	if(request.query.limit)
 		limit = request.query.limit;
+	
+	// Why doesn't this work when I submit it as a timestamp with .getTime()?
 	
 	if(request.query.startTime) {
 		startTime = new Date(request.query.startTime);
@@ -112,6 +116,10 @@ function groupsHandler(request, response) {
 		}
 		var output = "";
 		//output += "First five users who's join date is after " + new Date(1377699498000) + "";
+		
+		//getGroupFromEvent
+		//console.log(data);
+		getGroupFromEvent(10030829)
 		
 		output += JSON.stringify(data);
 		
@@ -210,6 +218,23 @@ printjson(output);
 
 // TODO orrrr, I could just not do it this way, and do it simpler like.
 // THat's possible, too
+
+function getGroupFromEvent(event) {
+	db.collection('catagory').findOne({
+		id: {$eq: 1001619}
+	},
+	function(err, data) {
+		if(err) {
+			console.log("ERROR");
+			console.log(err);
+			return;
+		}
+		//console.log(data);
+		return data;
+	}
+	);
+	
+}
 
 function catagoryHandler(request, response) {
 	if(request.query.limit)
