@@ -40,7 +40,8 @@ app.get("/viz/*", fileHandler);
 app.all("/groups/*", allowAccessHeaders);
 app.get("/groups/*", groupsHandler);
 
-
+app.all("/getGroupFromId/*", allowAccessHeaders);
+app.get("/getGroupFromId/*", getGroupFromIdHandler);
 
 function groupsHandler(request, response) {
 	if(request.query.limit)
@@ -119,7 +120,7 @@ function groupsHandler(request, response) {
 		
 		//getGroupFromEvent
 		//console.log(data);
-		getGroupFromEvent(10030829)
+		//getGroupFromEvent(10030829)
 		
 		output += JSON.stringify(data);
 		
@@ -219,9 +220,40 @@ printjson(output);
 // TODO orrrr, I could just not do it this way, and do it simpler like.
 // THat's possible, too
 
-function getGroupFromEvent(event) {
+// 
+
+// do: async.each(data, function(item, callback) {
+// for events
+
+function getGroupFromIdHandler(request, response) {
+	response.writeHead(200, {"Content-Type": "application/json"});
+	
+	var path = request.path.split("/");
+	
+	var groupId = parseInt(path.pop());
+	if(groupId) {
+		getGroupFromId(groupId, function(data) { response.write(JSON.stringify(data)); response.end(); } );
+		// Get it the more dangerous way
+		//console.log(groupId);
+		//response.end();
+	}
+	
+	//response.write();
+	
+	//getGroupFromId(1001619, function(data) { response.write(JSON.stringify(data)); response.end(); } );
+	
+	//var output = getGroupFromEvent(1001619);
+	//response.write("Hi");
+	//response.end();
+	
+}
+
+// Accepts an Integer of a group id, and returns the associated group object
+// These can be found in group.id objects embedded in events objects 
+
+function getGroupFromId(groupId, handler) {
 	db.collection('catagory').findOne({
-		id: {$eq: 1001619}
+		id: {$eq: groupId}
 	},
 	function(err, data) {
 		if(err) {
@@ -229,8 +261,12 @@ function getGroupFromEvent(event) {
 			console.log(err);
 			return;
 		}
-		//console.log(data);
+		if(handler)
+			handler(data);
+			//console.log(data);
 		return data;
+		//console.log(data);
+		//return data;
 	}
 	);
 	
