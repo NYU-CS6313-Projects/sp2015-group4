@@ -43,6 +43,9 @@ app.get("/groups/*", groupsHandler);
 app.all("/getGroupFromId/*", allowAccessHeaders);
 app.get("/getGroupFromId/*", getGroupFromIdHandler);
 
+app.get("/favicon.ico", function (req, res) {res.end()} );
+
+
 function groupsHandler(request, response) {
 	if(request.query.limit)
 		limit = request.query.limit;
