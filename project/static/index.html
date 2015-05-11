@@ -1,6 +1,13 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+	<!--
+	
+	Create throbber for when loading data.
+	Maybe use a d3 pie-chart type thing?
+	
+	
+	-->
     <meta charset="UTF-8">
     <title></title>
     <!-- Load the D3 Library -->
@@ -38,7 +45,7 @@
 	  Enter a date after 2009-04-01:
 	  <input type="date" id="startTime" value="2009-04-01" min="2009-04-01" max="2010-04-01"><br>
 	  Enter a date before 2010-04-01:
-	  <input type="date" id="endTime" value="2010-04-01" min="2009-04-01" max="2011-04-01"><br>
+	  <input type="date" id="endTime" value="2009-05-01" min="2009-04-01" max="2011-04-01"><br>
 	  Headcount less than:
 	  <input id="headCountLess" type="range" value="50" min="0" max="500" step="1" oninput="document.querySelector('#headCountLessLabel').innerHTML = value; doSubmit();" />
 	  <output for="headCountLess" id="headCountLessLabel">50</output>
