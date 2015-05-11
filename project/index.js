@@ -69,28 +69,6 @@ function groupsHandler(request, response) {
 		
 	response.writeHead(200, {"Content-Type": "application/json"});
 	
-	/*
-{
-    headcount: {$gt: 10, $lt: 30}
-    ,
-    visibility: {$eq: "public"}
-    ,
-    //time: {$lt: end}
-    time: 
-    {
-        $gt: 1238544000000,
-        $lt: 1240876800000
-        }
-        
-}
-	*/
-	
-	//startTime = new Date(2009, 04, 01).getTime();
-	//endTime = new Date(2015, 04, 01).getTime();
-	
-	//console.log("startTime: " + startTime.getTime());
-	//console.log("endTime: " + endTime.getTime());
-	
 	db.collection('events').find(
 	{
 	time:
@@ -226,11 +204,6 @@ printjson(output);
 
 */
 
-// TODO orrrr, I could just not do it this way, and do it simpler like.
-// THat's possible, too
-
-// 
-
 // do: async.each(data, function(item, callback) {
 // for events
 
@@ -303,45 +276,6 @@ function catagoryHandler(request, response) {
 					response.write(JSON.stringify(output));
 					response.end();
 				})
-				
-				/*
-				function allDone(notAborted, arr) {
-					console.log("done", notAborted, arr);
-				}
-				
-				forEach(data, function(item, index, arr) {
-					//console.log("Item: " + item);
-					db.collection('catagory').count({"category.shortname": item},
-						function(err, data) {
-							output.push([item, data]);
-							//console.log(output);
-							console.log(test++);
-						})
-				}, allDone)
-				*/
-				
-				/*function(notAborted, arr) {
-					console.log("All done");
-					console.log(test);
-					console.log(JSON.stringify(output));
-					response.write(JSON.stringify(output));
-					response.end();
-				})*/
-				
-				/*
-				//console.log("Details requested...");
-				data.forEach(function(d, i) {
-					//console.log("http://104.237.146.70:8124/catagory/"+d);
-					
-					outgoingRequest('http://104.237.146.70:8124/catagory/'+d, function (error, response, body) {	
-						if (!error && response.statusCode == 200) {
-							var info = JSON.parse(body);
-							console.log("Data: " + d + " " + info);
-						}
-					})
-					
-				})
-				*/
 			} else {
 				
 				
@@ -360,13 +294,6 @@ function catagoryHandler(request, response) {
 			response.end();
 		});
 	}
-	
-	
-	
-	//response.write("Out: ");
-	//response.write(output);
-	//response.end();
-
 }
 
 function simpleHandler(request, response) {
