@@ -115,18 +115,27 @@ function groupsHandler(request, response) {
 			console.log(err);
 			return;
 		}
-		var output = "";
-		//output += "First five users who's join date is after " + new Date(1377699498000) + "";
-		
-		//getGroupFromEvent
-		//console.log(data);
-		//getGroupFromEvent(10030829)
-		
-		output += JSON.stringify(data);
-		
-		response.write(output);
-		
-		response.end();
+		// This will load up the group subdocument with extra info, to make it easier
+		// to pull together our vizualisation
+		if(request.query.includeGroups == "1") {
+			output = [];
+			async.each(data, function(item, callback) {
+				getGroupFromId(parseInt(item.group.id), function(d) {
+					item.group.category = d.category;
+					item.group.topics = d.topics;
+					//item.group.description = d.description;
+					output.push(item);
+					callback();
+				});
+			}, function(err) {
+				response.write(JSON.stringify(output));
+				response.end();
+			}
+			);
+		} else {
+			response.write(JSON.stringify(data));
+			response.end();
+		}
 	});
 
 }
@@ -225,6 +234,7 @@ printjson(output);
 // do: async.each(data, function(item, callback) {
 // for events
 
+
 function getGroupFromIdHandler(request, response) {
 	response.writeHead(200, {"Content-Type": "application/json"});
 	
@@ -233,18 +243,7 @@ function getGroupFromIdHandler(request, response) {
 	var groupId = parseInt(path.pop());
 	if(groupId) {
 		getGroupFromId(groupId, function(data) { response.write(JSON.stringify(data)); response.end(); } );
-		// Get it the more dangerous way
-		//console.log(groupId);
-		//response.end();
 	}
-	
-	//response.write();
-	
-	//getGroupFromId(1001619, function(data) { response.write(JSON.stringify(data)); response.end(); } );
-	
-	//var output = getGroupFromEvent(1001619);
-	//response.write("Hi");
-	//response.end();
 	
 }
 
@@ -263,10 +262,6 @@ function getGroupFromId(groupId, handler) {
 		}
 		if(handler)
 			handler(data);
-			//console.log(data);
-		return data;
-		//console.log(data);
-		//return data;
 	}
 	);
 	
