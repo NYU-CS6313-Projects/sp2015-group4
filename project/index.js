@@ -25,8 +25,8 @@ app.use(express.static('static'));
 
 var limit = 10; // By default, but can be overridden with a param
 
-app.all('/', allowAccessHeaders);
-app.get("/", simpleHandler);
+//app.all('/', allowAccessHeaders);
+//app.get("/", simpleHandler);
 
 app.all("/listcatagories", allowAccessHeaders);
 app.get("/listcatagories", listCatagoriesHandler);
@@ -286,6 +286,7 @@ function simpleHandler(request, response) {
 		
 	response.writeHead(200, {"Content-Type": "application/json"});
 	
+	/*
 	db.collection('members').find({joined:{$gt:1377699498000}}, {limit: limit}, function(err, data) {
 		var output = "";
 		//output += "First five users who's join date is after " + new Date(1377699498000) + "";
@@ -296,7 +297,7 @@ function simpleHandler(request, response) {
 		
 		response.end();
 	});
-
+	*/
 }
 
 var server = app.listen(port);
