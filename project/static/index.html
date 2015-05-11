@@ -17,9 +17,13 @@
         #detailView {
         	border: solid 1px black;
         	width: 320px;
-        	height: 100px;
+        	height: 130px;
         	margin: 20px;
         	padding: 20px;
+        }
+        #legendControl {
+        	border: solid 1px black;
+        	
         }
         #vizcontainerZoomed {
         	border: solid 1px red;
@@ -114,7 +118,7 @@ function doDetailView(d) {
 		"Date: " + new Date(d.time) + "<br />" +
 		"<span style=\'color:" + c + "\'>Category:" + d.group.category.shortname
 		+ "</span>" + "<br />"
-		+ "Group id: " + d.group.id
+		+ "Group id: " + d.group.id + "<br />"
 		+ "Headcount: " + d.headcount
 		);
 }

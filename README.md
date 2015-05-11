@@ -1,4 +1,4 @@
-# Project X
+# Project 26 - Meetup Microscope
 
 TODO 
 
