@@ -40,7 +40,7 @@
 	  Enter a date before 2010-04-01:
 	  <input type="date" id="endTime" value="2010-04-01" min="2009-04-01" max="2011-04-01"><br>
 	  Headcount less than:
-	  <input id="headCountLess" type="range" value="50" min="0" max="500" step="1" oninput="document.querySelector('#headCountLessLabel').innerHTML = value" />
+	  <input id="headCountLess" type="range" value="50" min="0" max="500" step="1" oninput="document.querySelector('#headCountLessLabel').innerHTML = value; doSubmit();" />
 	  <output for="headCountLess" id="headCountLessLabel">50</output>
 	  <br />
 	  <!--
@@ -86,13 +86,19 @@ function doSubmit() {
 }
 
 function doDetailView(d) {
-	//alert(d.name);
+	console.log(d);
+	console.log(color(d.group.category.id));
+	//console.log("In detail view:");
+	//console.log(d.group.category.shortname);
+	//console.log(color(d.group.category.id));
+	var c = color(d.group.category.id);
 	d3.select("#detailView")
 		.select("span")
 		.html(
 		"Group name: " + d.name + "<br />" +
-		"Date: " + new Date(d.time) + "<br />"
-		
+		"Date: " + new Date(d.time) + "<br />" +
+		"<span style=\'color:" + c + "\'>Category:" + d.group.category.shortname
+		+ "</span>"
 		);
 }
 
@@ -120,7 +126,7 @@ function doVizZoomed() {
     var endTime = document.getElementById("endTime").valueAsDate;
     var headCountLess = document.getElementById("headCountLess").value;
     
-    console.log("Start time:" + startTime);
+   // console.log("Start time:" + startTime);
     
     // Remove previous svg
     d3.select("svg").remove(); 
@@ -142,12 +148,12 @@ function doVizZoomed() {
     
     
     
-	var myColor = d3.scale.category20b = function() {
-		return d3.scale.ordinal().range(d3_category20b);
-	};
+	//var myColor = d3.scale.category20b = function() {
+	//	return d3.scale.ordinal().range(d3_category20b);
+	//};
     
     
-    /*
+    
     // Probably can remove.
     // This is something I should remember to do later, though
     // that is, using nice()
@@ -155,17 +161,19 @@ function doVizZoomed() {
     	.domain([startTime, endTime])
     	.nice(d3.time.month)
     	.range([0, height]);
-    */
+    
     
     //console.log("Requesting: ");
     //console.log("/groups/?" +
     //"limit=20" + "&startTime="+ startTime.getTime().toString() +
     //"&endTime=" + endTime.getTime().toString());
     
+    
+    
     //104.237.146.70:8124
     d3.json(
     "/groups/?" +
-    "limit=20" + "&startTime="+ startTime +
+    "limit=150" + "&startTime="+ startTime +
     "&endTime=" + endTime
     ,
     function(err, data) {
@@ -174,19 +182,46 @@ function doVizZoomed() {
     		console.warn(err);
     		return;
     	}
-    	console.log(data);
-    	
-    	svg.selectAll("circle")
-    		.data(data).enter()
-    			.append("circle")
-    				.attr("r","5")
-    				.attr("cx", function(d) {return scaleX(d.time); })
-    				.attr("cy", function(d) {return scaleY(d.headcount); })
-//    				.attr("fill", function(d) {return myColor(
-    				.on("mouseover", doDetailView)
+		//console.log(data);
+		
+		
+		// Fix this later!
+		// DOES NOT CATEGORIZE all the colors
+		color = d3.scale.ordinal()
+		.range(["#1f77b4", "#ff7f0e", "#2ca02c", "#d62728", "#9467bd", "#8c564b", "#e377c2"])
+		.domain([0,1,2,3,4,5,6])
+		
+		//myColor = d3.scale.category20b = function() {
+		//return d3.scale.ordinal().range(d3_category20b);
+		//};
+	
+		svg.selectAll("circle")
+			.data(data).enter()
+				.append("circle")
+					.attr("r","5")
+					.attr("cx", function(d) {return scaleX(d.time); })
+					.attr("cy", function(d) {return scaleY(d.headcount); })
+					.attr("fill", function(d) {return color(d.group.category.id)} )
+					.on("mouseover", doDetailView)
+					//.on("mouseover", function(d) {console.log(d); console.log(d.group.category.shortname)})
+    		
     				
+		
+		//console.log(scaleX(function (d) {return 3}));
+
+		//var lineFunc = d3.svg.line()
+		//.scaleX(function (d) {return d.headcount})
+		//.scaleY(function (d) {return scaleY(d.headcount);})
+		//.interpolate('linear');
+		
+/*
+		svg.append("svg:path")
+		  .attr("d", lineFunc(data))
+		  .attr("stroke", "blue")
+		  .attr("stroke-width", 2)
+		  .attr("fill", "none");
+*/
     });
-    
     
 	// Make the axis
 
@@ -215,7 +250,7 @@ function doVizZoomed() {
     svg.append("g").attr("class", "axis").call(yAxis); 
     */
 }
-
+onLoad = doVizZoomed();
     </script>
 </body>
 </html>

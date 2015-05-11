@@ -66,6 +66,12 @@ function groupsHandler(request, response) {
 	var headCountMore = 30;
 	if(request.query.headCountMore)
 		headCountMore = request.query.headCountMore;
+	
+	var includeGroups;
+	if(request.query.includeGroups == "0")
+		includeGroups = 0;
+	else
+		includeGroups = 1;
 		
 	response.writeHead(200, {"Content-Type": "application/json"});
 	
@@ -95,7 +101,7 @@ function groupsHandler(request, response) {
 		}
 		// This will load up the group subdocument with extra info, to make it easier
 		// to pull together our vizualisation
-		if(request.query.includeGroups == "1") {
+		if(includeGroups) {
 			output = [];
 			async.each(data, function(item, callback) {
 				getGroupFromId(parseInt(item.group.id), function(d) {
@@ -180,29 +186,11 @@ function listCatagoriesHandler(request, response) {
 		var output = "";
 		output += JSON.stringify(data);
 		response.write(JSON.stringify(data));
-		//response.write(output);
+		//response.write(output)
 		response.end();
 	});
 }
 
-/*
-Trying to implement this:
-SO ANNOYING.
-This is all I want:
-var myCursor = db.getCollection('catagory').distinct('category.shortname')
- 
-var output = [];
- 
-myCursor.forEach(
-    function(myDoc) {
-        var result = db.getCollection('catagory').find({"category.shortname" : myDoc });
-        output.push([myDoc, result.count()]);
-    }
-);
-printjson(output);
-
-
-*/
 
 // do: async.each(data, function(item, callback) {
 // for events
@@ -232,8 +220,7 @@ function getGroupFromId(groupId, handler) {
 			console.log("ERROR");
 			console.log(err);
 			return;
-		}
-		if(handler)
+		}	if(handler)
 			handler(data);
 	}
 	);
@@ -284,9 +271,6 @@ function catagoryHandler(request, response) {
 				return;
 			}
 		})
-	
-	
-	
 	} else {
 		db.collection('catagory').count({"category.shortname": path[2]}, function(err, data) {
 			console.log(data);
