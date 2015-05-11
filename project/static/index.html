@@ -18,18 +18,25 @@
         	border: solid 1px black;
         	width: 320px;
         	height: 100px;
+        	margin: 20px;
+        	padding: 20px;
         }
         #vizcontainerZoomed {
         	border: solid 1px red;
         	height: 240px;
         	width: 320px;
         	float: left;
+        	margin: 10px;
+        	padding: 10px;
         }
         #vizOverview {
         	border: solid 1px red;
         	height: 240px;
         	width: 320px;
         	float: left;
+        	background-image: url("overviewMockup0.png");
+        	margin: 10px;
+        	padding: 10px;
         }
         #vizWrapper {
         	/* width: 1024px; */
@@ -50,11 +57,9 @@
 	  <input id="headCountLess" type="range" value="50" min="0" max="500" step="1" oninput="document.querySelector('#headCountLessLabel').innerHTML = value; doSubmit();" />
 	  <output for="headCountLess" id="headCountLessLabel">50</output>
 	  <br />
-	  <!--
 	  Headcount more than:
-	  <input id="headCountMore" type="range" min="0" max="500" step="1" oninput="updateHeadCountSlider()" />
+	  <input id="headCountMore" type="range" min="0" max="500" step="1" disabled oninput="updateHeadCountSlider()" />
 	  <output for="headCountMore" id="headCountMoreLabel">50</output>
-	  -->
 	  <p><a href="#" onClick='doSubmit();'>Update</a></p>
 	</form>
 	<div id="detailView">
@@ -64,7 +69,7 @@
 		<div id="vizcontainerZoomed">
 		</div>
 		<div id="vizOverview">
-			<p>TODO: Overview view</p>
+			<p>TODO: Overview view, select area</p>
 		</div>
 	</div>
 	
@@ -98,14 +103,19 @@ function doDetailView(d) {
 	//console.log("In detail view:");
 	//console.log(d.group.category.shortname);
 	//console.log(color(d.group.category.id));
-	var c = color(d.group.category.id);
+	//var c = color(d.group.category.id); // THis works, strangely
+	//var c = d.group.category.id
+	var c = "black";
+	
 	d3.select("#detailView")
 		.select("span")
 		.html(
 		"Group name: " + d.name + "<br />" +
 		"Date: " + new Date(d.time) + "<br />" +
 		"<span style=\'color:" + c + "\'>Category:" + d.group.category.shortname
-		+ "</span>"
+		+ "</span>" + "<br />"
+		+ "Group id: " + d.group.id
+		+ "Headcount: " + d.headcount
 		);
 }
 
@@ -166,7 +176,7 @@ function doVizZoomed() {
     // that is, using nice()
     var timeScale = d3.time.scale()
     	.domain([startTime, endTime])
-    	.nice(d3.time.month)
+    	//.nice(d3.time.month)
     	.range([0, height]);
     
     
@@ -194,9 +204,17 @@ function doVizZoomed() {
 		
 		// Fix this later!
 		// DOES NOT CATEGORIZE all the colors
+		
 		color = d3.scale.ordinal()
 		.range(["#1f77b4", "#ff7f0e", "#2ca02c", "#d62728", "#9467bd", "#8c564b", "#e377c2"])
 		.domain([0,1,2,3,4,5,6])
+		
+		
+		//var color = d3.scale.category20c()
+		//	.domain(["food-drink","games","lgbt","government-politics","health-wellbeing","hobbies-crafts","language","lifestyle","literature-writing","arts-culture","movies-film","music","new-age-spirituality","outdoors-adventure","paranormal","parents-family","pets-animals","photography","religion-beliefs","sci-fi-fantasy","career-business","singles","socializing","sports-recreation","support","tech","women","cars-motorcycles","community-environment","dancing","education-learning","fashion-beauty","fitness"]);
+		
+		//console.log(data);
+		
 		
 		//myColor = d3.scale.category20b = function() {
 		//return d3.scale.ordinal().range(d3_category20b);
@@ -207,8 +225,9 @@ function doVizZoomed() {
 				.append("circle")
 					.attr("r","5")
 					.attr("cx", function(d) {return scaleX(d.time); })
-					.attr("cy", function(d) {return scaleY(d.headcount); })
-					.attr("fill", function(d) {return color(d.group.category.id)} )
+					.attr("cy", function(d) {return scaleY(d.headcount + 5); })
+					//.attr("fill", function(d) {return color(d.group.category.name); console.log(d.group.category.name)} )
+					.attr("fill", function(d) {return color(d.group.category.name)} )
 					.on("mouseover", doDetailView)
 					//.on("mouseover", function(d) {console.log(d); console.log(d.group.category.shortname)})
     		
