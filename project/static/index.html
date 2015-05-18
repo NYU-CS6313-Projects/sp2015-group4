@@ -4,24 +4,62 @@
 		<style type="text/css">
 			#detailViewContainer {
 				border: solid 1px green;
-				float: left;
+				position: absolute;
+				top: 350px;
+			}
+			
+			#detailControlView {
+				bordeR: solid 1px black;
+				position: absolute;
+				top: 0px;
+				left: 0px;
+				width: 320px;
+				height: 240px;
 			}
 			
 			#detailView {
 				border: solid 1px red;
+				position: absolute;
 				height: 240px;
 				width: 320px;
-				float: left;
-				margin-left: 20px;
+				left: 320px;
+				top: 0px;
+			}
+			
+			#groupView {
+				border: solid 1px orange;
+				width: 320px;
+				height 240px;
+				position: absolute;
+				left: 640px;
+				top: 0px;
+			}
+			
+			#contextViewContainer {
+				border: solid 1px purple;
+				position: absolute;
+				left: 10px;
+				top: 10px;
 			}
 			
 			#contextView {
 				border: solid 1px red;
 				height: 240px;
-				width: 320px;
+				width: 800px;
+				top: 0px;
+				left: 0px;
 				float: left;
 /*				margin: 10px;
 				padding: 10px; */
+			}
+			
+			#contextViewLegend {
+				border: solid 1px blue;
+				height: 100px;
+				width: 800px;
+				position: absolute;
+				top: 240px;
+				left: 0px;
 			}
 			
 			.area {
@@ -44,34 +82,41 @@
 		</style>
 	</head>
 	<body>
+		<!--
 		<p id="#output">ho</p>
-		
+		-->
 		<div id="detailViewContainer">
+			<div id="detailControlView">
+				<form>
+				  <input type="date" id="startTime" value="2009-04-01" min="" max=""><br>
+				  <input type="date" id="endTime" value="2009-05-01" min="" max=""><br>
+				  yes_rsvp_count less than:<br />
+				  <input id="yes_rsvp_countLess" type="range" value="50" min="0" max="500" step="1" oninput="document.querySelector('#yes_rsvp_countLessLabel').innerHTML = value" />
+				  <output for="yes_rsvp_countLess" id="yes_rsvp_countLessLabel">50</output>
+				  <br />
+				  yes_rsvp_count more than:<br />
+				  <input id="yes_rsvp_countMore" type="range" value="50" min="0" max="500" step="1" oninput="document.querySelector('#yes_rsvp_countMoreLabel').innerHTML = value" />
+				  <output for="yes_rsvp_countMore" id="yes_rsvp_countMoreLabel">50</output>
+				  <p><a href="#" onClick='doDetailView()'>Update</a></p>
+				</form>
+			</div>
+		
 			<div id="detailView">
 				<p>Hi</p>
 			</div>
-			
-		<br />
-		<hr />
-		<p>Input</p>
-		<form>
-		  <input type="date" id="startTime" value="2009-04-01" min="" max=""><br>
-		  <input type="date" id="endTime" value="2009-05-01" min="" max=""><br>
-		  yes_rsvp_count less than:
-		  <input id="yes_rsvp_countLess" type="range" value="50" min="0" max="500" step="1" oninput="document.querySelector('#yes_rsvp_countLessLabel').innerHTML = value" />
-		  <output for="yes_rsvp_countLess" id="yes_rsvp_countLessLabel">50</output>
-		  <br />
-		  yes_rsvp_count more than:
-		  <input id="yes_rsvp_countMore" type="range" value="50" min="0" max="500" step="1" oninput="document.querySelector('#yes_rsvp_countMoreLabel').innerHTML = value" />
-		  <output for="yes_rsvp_countMore" id="yes_rsvp_countMoreLabel">50</output>
-		  <p><a href="#" onClick='doDetailView()'>Update</a></p>
-		</form>
-			
+			<div id="groupView">
+				
+			</div>
+		
 		</div>
 		
-
-		<div id="contextView">
+		<div id="contextViewContainer">
+			<div id="contextView">
 		
+			</div>
+			<div id="contextViewLegend">
+				
+			</div>
 		</div>
 		
 		<script src="http://d3js.org/d3.v3.min.js"></script>
@@ -83,6 +128,27 @@
 			console.log(contextStartDate)
 						
 			doContextView()
+			doLegend()
+			
+			colorScale = d3.scale.ordinal()
+				.range(["#a6cee3", "#1f78b4", "#b2df8a", "#33a02c", "#fb9a99", "#e31a1c", "#fdbf6f", "#ff7f00", "#cab2d6", "#6a3d9a", "#ffff99", "#b15928", "#8dd3c7", "#ffffb3", "#bebada", "#cab2d6", "#fb8072", "#80b1d3", "#fdb462", "#b3de69", "#fccde5", "#d9d9d9", "#bc80bd", "#ccebc7", "#ffed6f", "#bf812d", "#f6e8c3", "#c51b7d", "#f1b6da", "#e6f598", "#01665e", "#80cdc1", "#3288bd"])
+				.domain(["food/drink", "games", "LGBT", "movements/politics", "health/wellbeing", "hobbies/crafts", "language/ethnic identity", "alternative lifestyle", "literature/writing", "fine arts/culture", "movies/film", "music", "new age/spirituality", "outdoors/adventure", "paranormal", "parents/family", "pets/animals", "photography", "religion/beliefs", "sci-fi/fantasy", "career/business", "singles","socializing", "sports/recreation", "support","tech","women","cars/motorcycles", "community/environment", "dancing","education/learning", "fashion/beauty","fitness"])
+			
+			function doLegend() {
+				
+				d3.json("/listcatagories",
+				function(err, data) {
+					var legend = d3.select("#contextViewLegend")
+					
+					legend.selectAll("span")
+						.data(data)
+						.enter()
+						.append("span")
+						.text(function(d) {return "• " + d + "  "})
+						.style("border","solid black 1px")
+						.style("background-color", function(d) {return colorScale(d)})
+				}
+			)}
 			
 			function doDetailView() {
 				var width = parseInt($("#detailView").css("width"));
@@ -109,33 +175,42 @@
 					.domain([0, 40])
 					.range([0, height])
 				
-				color = d3.scale.ordinal()
-					.range(["#1f77b4", "#ff7f0e", "#2ca02c", "#d62728", "#9467bd", "#8c564b", "#e377c2"])
-					.domain([0,1,2,3,4,5,6])
-				
 				d3.json(
 				"/groups/?" +
 				"limit=150" + "&startTime="+ startTime +
 				"&endTime=" + endTime
 				,
-					function(err, data) {
-						if(err) {
-							console.warn("ERROR");
-							console.warn(err);
-							return;
-						}
-						console.log(data)
-						
-						svg.selectAll("circle")
-							.data(data)
-								.enter()
-									.append("circle")
-										.attr("r", "5")
-										.attr("fill", function(d) { return color(d.group.category.name) })
-										.attr("cx", function(d) {return xScale(d.time) })
-										.attr("cy", function(d) {return yScale(d.yes_rsvp_count + 5) })
+				function(err, data) {
+					if(err) {
+						console.warn("ERROR");
+						console.warn(err);
+						return;
 					}
-				)
+					console.log(data)
+					
+					svg.selectAll("circle")
+						.data(data)
+							.enter()
+								.append("circle")
+									.attr("r", "5")
+									.attr("fill", function(d) { return colorScale(d.group.category.name) })
+									.attr("cx", function(d) {return xScale(d.time) })
+									.attr("cy", function(d) {return yScale(d.yes_rsvp_count + 5) })
+									.on("mouseover", doGroupView)
+									.on("click", doTraceGroup)
+				})
+			}
+			
+			function doGroupView(d) {
+				var groupView = document.querySelector('#groupView')
+				groupView.innerHTML = "" +
+				"Group name: " + d.name + "<br />" +
+				"Category: " + d.group.category.name + "<br />" +
+				"Yes RSVPs: " + d.yes_rsvp_count
+			}
+			
+			function doTraceGroup() {
+				var groupView = document.querySelector('#groupView')
 			}
 			
 			function doContextView() {
@@ -204,7 +279,8 @@
 			
 				function brushed() {
 				  var extent = brush.extent();
-  
+				  
+				  /*
 				  var output = document.getElementById("#output");
   
 				  output.innerHTML = ""
@@ -216,6 +292,7 @@
 				  output.innerHTML += "<br />"
 				  output.innerHTML += "Y2: " + extent[1][1]
 				  output.innerHTML += "<br />"
+				  */
 				  
 				  // Extracting the time into YYYY-MM-DD that the field will accept
 				  
@@ -255,6 +332,10 @@
 				  var yes_rsvp_countMoreInput = document.querySelector('#yes_rsvp_countMore')
 				  yes_rsvp_countMoreInput.value = parseInt(extent[1][1])
 				  document.querySelector('#yes_rsvp_countMoreLabel').innerHTML = parseInt(extent[1][1])
+				  
+				  
+				  
+				  
 				}
 			}
 
