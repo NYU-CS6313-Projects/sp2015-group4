@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+ <html lang="en">
+	<head>
+		<style type="text/css">
+
+		</style>
+	</head>
+	<body>
+		<script src="http://d3js.org/d3.v3.min.js"></script>
+		<script type="text/javascript" src="https://code.jquery.com/jquery-2.1.3.min.js"> </script>
+		<script>
+var svg = d3.select("body").append("svg")
+    .attr("width", 400)
+    .attr("height", 300)
+
+var testData = [
+  [ 0, 10],
+  [10, 20],
+  [20, 30],
+  [30, 20],
+];
+
+svg.selectAll("path.area")
+    .data([testData])      // dimension of data should be 3D
+  .enter().append("path")
+    .style("fill", "#ff0000")
+    .attr("class", "area") // not the cause of your problem
+    .attr("d", d3.svg.area());
+		</script>
+	</body>
+ </html>
+ 

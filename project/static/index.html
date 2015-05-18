@@ -25,6 +25,14 @@
 				left: 320px;
 				top: 0px;
 			}
+			#loadingView {
+				border: solid 1px red;
+				position: absolute;
+				height: 240px;
+				width: 320px;
+				left: 320px;
+				top: 0px;
+			}
 			
 			#groupView {
 				border: solid 1px orange;
@@ -99,10 +107,19 @@
 				  <output for="yes_rsvp_countMore" id="yes_rsvp_countMoreLabel">50</output>
 				  <p><a href="#" onClick='doDetailView()'>Update</a></p>
 				</form>
+				<!--
+				<a href="#" onClick='doLoading()'>Do Loading</a>
+				<a href="#" onClick='unDoLoading()'>Un Do Loading</a>
+				-->
+				<a href="#" onClick='getEventsForDay()'>Get Events</a>
 			</div>
-		
+			
 			<div id="detailView">
 				<p>Hi</p>
+			</div>
+			
+			<div id="loadingView">
+				<p>LOADING</p>
 			</div>
 			<div id="groupView">
 				
@@ -126,13 +143,45 @@
 			var contextStartDate = new Date("2009-01-01")
 			var contextEndDate = new Date("2010-01-01")
 			console.log(contextStartDate)
-						
+			
 			doContextView()
 			doLegend()
 			
+			d3.select('#loadingView').style("visibility", "hidden");
+			
 			colorScale = d3.scale.ordinal()
 				.range(["#a6cee3", "#1f78b4", "#b2df8a", "#33a02c", "#fb9a99", "#e31a1c", "#fdbf6f", "#ff7f00", "#cab2d6", "#6a3d9a", "#ffff99", "#b15928", "#8dd3c7", "#ffffb3", "#bebada", "#cab2d6", "#fb8072", "#80b1d3", "#fdb462", "#b3de69", "#fccde5", "#d9d9d9", "#bc80bd", "#ccebc7", "#ffed6f", "#bf812d", "#f6e8c3", "#c51b7d", "#f1b6da", "#e6f598", "#01665e", "#80cdc1", "#3288bd"])
-				.domain(["food/drink", "games", "LGBT", "movements/politics", "health/wellbeing", "hobbies/crafts", "language/ethnic identity", "alternative lifestyle", "literature/writing", "fine arts/culture", "movies/film", "music", "new age/spirituality", "outdoors/adventure", "paranormal", "parents/family", "pets/animals", "photography", "religion/beliefs", "sci-fi/fantasy", "career/business", "singles","socializing", "sports/recreation", "support","tech","women","cars/motorcycles", "community/environment", "dancing","education/learning", "fashion/beauty","fitness"])
+				.domain(["food/drink", "games", "LGBT", "movements/politics", "health/wellbeing", "hobbies/crafts", "language/ethnic identity", "alternative lifestyle", "literature/writing", "fine arts/culture", "movies/film", "music", "new age/spirituality", "outdoors/adventure", "paranormal", "parents/family", "pets/animals", "photography", "religion/beliefs", "sci-fi/fantasy", "career/business", "singles","socializing", "sports/recreation", "support","tech","women","cars/motorcycles", "community/environment", "dancing","education/learning", "fashion/beauty","fitness"])			
+
+			
+			function getEventsForDay() {
+				d3.json("/getEventsForDay/" +
+					"?startTime=" + document.getElementById("startTime").valueAsDate +
+					"&endTime=" + document.getElementById("endTime").valueAsDate,
+				function(err, data) {
+					console.log(data)
+				})
+			}
+			
+			function unDoLoading() {
+				var detailView = document.querySelector('#detailView')
+				var detailViewLoading = document.querySelector('#detailView.loading')
+				
+				d3.select('#detailView').style("visibility", "visible");
+				d3.select('#loadingView').style("visibility", "hidden");
+			}
+			
+			function doLoading() {
+				var detailView = document.querySelector('#detailView')
+				var detailViewLoading = document.querySelector('#detailView.loading')
+				
+				//$('#detailView.loading').hidden = false;
+				//.style("visibility", "visible");
+				d3.select('#detailView').style("visibility", "hidden");
+				d3.select('#loadingView').style("visibility", "visible");
+				
+				console.log("Set loading screen")
+			}
 			
 			function doLegend() {
 				
@@ -151,6 +200,7 @@
 			)}
 			
 			function doDetailView() {
+				
 				var width = parseInt($("#detailView").css("width"));
 				var height = parseInt($("#detailView").css("height"));
 				
@@ -172,12 +222,28 @@
 					.range([0, width])
 				
 				var yScale = d3.scale.linear()
-					.domain([0, 40])
+					.domain([parseInt(document.querySelector('#yes_rsvp_countMore').value),parseInt(document.querySelector('#yes_rsvp_countLess').value)])
+					//.domain([0, 40])
 					.range([0, height])
+				
+				var tempLineFunc = d3.svg.line()
+					.x(function (d) {return xScale(d.time); })
+					.y(function (d) {return yScale(d.yes_rsvp_count);})
+					.interpolate('linear');
+				
+				function filterByGroup(data, group) {
+					output = []
+					data.forEach(function(d) {
+						output += d
+					})
+					return output;
+				}
+				
+				
 				
 				d3.json(
 				"/groups/?" +
-				"limit=150" + "&startTime="+ startTime +
+				"limit=750" + "&startTime="+ startTime +
 				"&endTime=" + endTime +
 				"&yes_rsvp_countMore=" + document.querySelector('#yes_rsvp_countMore').value +
 				"&yes_rsvp_countLess=" + document.querySelector('#yes_rsvp_countLess').value
@@ -188,7 +254,6 @@
 						console.warn(err);
 						return;
 					}
-					console.log(data)
 					
 					svg.selectAll("circle")
 						.data(data)
@@ -201,6 +266,7 @@
 									.on("mouseover", doGroupView)
 									.on("click", doTraceGroup)
 				})
+
 			}
 			
 			function doGroupView(d) {
@@ -208,11 +274,20 @@
 				groupView.innerHTML = "" +
 				"Group name: " + d.name + "<br />" +
 				"Category: " + d.group.category.name + "<br />" +
-				"Yes RSVPs: " + d.yes_rsvp_count
+				"Yes RSVPs: " + d.yes_rsvp_count + "<br />" +
+				"Date: " + new Date(d.time)
 			}
 			
-			function doTraceGroup() {
+			function doTraceGroup(d) {
 				var groupView = document.querySelector('#groupView')
+				
+				var svg = d3.select("#detailView")
+				
+				console.log(d)
+				//console.log(d)
+				groupView.innerHTML = "" +
+				"Selected group: " + d.group.name +
+				"SVG: " + svg
 			}
 			
 			function doContextView() {
@@ -265,7 +340,6 @@
 					  .call(brush)
 					.selectAll("rect")
 			
-			
 				// Axis
 				var	xAxis = d3.svg.axis().scale(xScale).orient("bottom")
 			
@@ -278,7 +352,44 @@
 				contextSvg.append("g")
 					.attr("class", "y axis")
 					.call(yAxis)
-			
+					
+				
+				// Do lines for each group
+				d3.json("/listcatagories",
+				function(err, data) {
+					
+				})
+				
+				///
+				console.log("Trying to fetch date data")
+				
+				console.log("StartDate " + document.getElementById("startTime").valueAsDate)
+				console.log("EndDate " + document.getElementById("endTime").valueAsDate)
+				
+				console.log("StartDate " + contextStartDate)
+				console.log("EndDate " + contextEndDate)
+				
+				console.log("Trying for timestamps")
+				console.log("StartDateStamp " + contextStartDate.getTime())
+				console.log("EndDateStamp " + contextEndDate.getTime())
+				var nextDateStamp = contextStartDate.getTime()
+				
+				var day = (((24*60*60) * 1000))
+				
+				var endTimeStamp = contextEndDate.getTime()
+				endTimeStamp += day * 5
+				
+				d3.json("/getEventsForDay/" +
+//					"?startTime=" + document.getElementById("startTime").valueAsDate +
+//					"&endTime=" + document.getElementById("endTime").valueAsDate,
+					"?startTime=" + (contextStartDate.getTime()) +
+					"&endTime=" +  endTimeStamp, // +5 days
+				function(err, data) {
+					console.log(data)
+				})
+				
+				///
+				
 				function brushed() {
 				  var extent = brush.extent();
 				  
@@ -336,7 +447,7 @@
 				  document.querySelector('#yes_rsvp_countMoreLabel').innerHTML = parseInt(extent[1][1])
 				  
 				  
-				  
+				  doDetailView()
 				  
 				}
 			}

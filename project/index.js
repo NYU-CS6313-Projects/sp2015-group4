@@ -34,6 +34,12 @@ app.get("/listcatagories", listCatagoriesHandler);
 app.all("/catagory/*", allowAccessHeaders);
 app.get("/catagory/*", catagoryHandler);
 
+app.all("/getCatagoryTimeline/*", allowAccessHeaders);
+app.get("/getCatagoryTimeline/*", categoryTimelineHandler);
+
+app.all("/getEventsForDay/*", allowAccessHeaders);
+app.get("/getEventsForDay/*", getEventsForDayHandler);
+
 app.all("/viz/*", allowAccessHeaders);
 app.get("/viz/*", fileHandler);
 
@@ -44,6 +50,153 @@ app.all("/getGroupFromId/*", allowAccessHeaders);
 app.get("/getGroupFromId/*", getGroupFromIdHandler);
 
 app.get("/favicon.ico", function (req, res) {res.end()} );
+
+function getEventsForDayHandler(request, response) {
+	console.log("getEventsForDayHandler---")
+	response.writeHead(200, {"Content-Type": "application/json"});
+	
+	startTime = new Date(request.query.startTime)
+	endTime = new Date(request.query.endTime);
+	
+	var path = request.path.split("/");
+	
+	var groupId = parseInt(path.pop());
+	if(groupId) {
+		console.log("Getting timeline for group")
+	}
+	
+	console.log("StartTime: " + request.query.startTime + " " + startTime)
+	console.log("EndTime: " + request.query.endTime + " " + endTime)
+	//console.log("Handling from " + startTime + " to " + endTime)
+	
+	db.collection('events').find(
+	{
+	time:
+		{
+			//$gt: 1230768000000,
+			//$lt: 1262304000000
+			$gt: startTime.getTime(),
+			$lt: endTime.getTime()
+			}
+	},
+	//{limit: limit},
+		function(err, data) {
+		if(err) {
+			console.log("ERROR");
+			console.log(err);
+			return;
+		}
+		includeGroups = 1
+		if(includeGroups) {
+			output = [];
+			async.each(data, function(item, callback) {
+				getGroupFromId(parseInt(item.group.id), function(d) {
+					item.group.category = d.category;
+					item.group.topics = d.topics;
+					//item.group.description = d.description;
+					output.push(item);
+					callback();
+				});
+			}, function(err) {
+				response.write(JSON.stringify(output));
+				response.end();
+			}
+			);
+		} else {
+			response.write(JSON.stringify(data));
+			//response.end();
+			console.log("Sent " + data.length)
+		}
+	});
+	
+}
+
+function nextDay(timeStamp) {
+	return timeStamp + ((24*60*60) * 1000)
+}
+
+function categoryTimelineHandler(request, response) {
+	response.writeHead(200, {"Content-Type": "application/json"});
+	
+	console.log("Timeline")
+	
+	startTime = new Date(request.query.startTime)
+	endTime = new Date(request.query.endTime);
+	
+	
+	var path = request.path.split("/");
+	
+	var groupId = parseInt(path.pop());
+	if(groupId) {
+		console.log("Getting timeline for group")
+	}
+	
+	console.log("getting events from " + startTime + " to " + endTime)
+	console.log("Stepping every 24 hours...")
+	
+	var startTimeStamp = startTime.getTime()
+	var endTimeStamp = endTime.getTime()
+	
+	console.log("StartTimeStamp: " + startTimeStamp)
+	console.log("EndTimeStamp: " + endTimeStamp)
+	
+	console.log("tomorrow: " + nextDay(startTimeStamp))
+	console.log("tomorrow: " + new Date(nextDay(startTimeStamp)))
+	
+	console.log("Entering loop...")
+	
+	var i = startTimeStamp
+	while(i < endTime.getTime()) {
+		
+		console.log("Iterating for " + i)
+		///
+		
+		db.collection('events').find(
+		{
+		time:
+			{
+				$gt: i,
+				$lt: nextDay(i)
+				}
+		},
+		{limit: limit},
+			function(err, data) {
+			if(err) {
+				console.log("ERROR");
+				console.log(err);
+				return;
+			}
+			includeGroups = 0
+			if(includeGroups) {
+				output = [];
+				async.each(data, function(item, callback) {
+					getGroupFromId(parseInt(item.group.id), function(d) {
+						item.group.category = d.category;
+						item.group.topics = d.topics;
+						//item.group.description = d.description;
+						output.push(item);
+						callback();
+					});
+				}, function(err) {
+					response.write(JSON.stringify(output));
+					response.end();
+				}
+				);
+			} else {
+				response.write(JSON.stringify(data));
+				//response.end();
+				console.log("Sent " + data.length)
+			}
+		});
+		
+		///
+		
+		i = nextDay(i)
+		
+		
+	}
+	console.log("Finished")
+}
 
 
 function groupsHandler(request, response) {

@@ -214,12 +214,7 @@ function doVizZoomed() {
     		console.warn(err);
     		return;
     	}
-		//console.log(data);
-		
-		
-		// Fix this later!
-		// DOES NOT CATEGORIZE all the colors
-		
+    	
 		color = d3.scale.ordinal()
 		.range(["#1f77b4", "#ff7f0e", "#2ca02c", "#d62728", "#9467bd", "#8c564b", "#e377c2"])
 		.domain([0,1,2,3,4,5,6])
