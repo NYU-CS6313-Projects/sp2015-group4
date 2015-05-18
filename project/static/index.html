@@ -1,310 +1,265 @@
 <!DOCTYPE html>
-<html lang="en">
-<head>
-	<!--
-	
-	Create throbber for when loading data.
-	Maybe use a d3 pie-chart type thing?
-	
-	
-	-->
-    <meta charset="UTF-8">
-    <title></title>
-    <!-- Load the D3 Library -->
-    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/d3/3.5.5/d3.min.js"> </script>
-    <script type="text/javascript" src="https://code.jquery.com/jquery-2.1.3.min.js"> </script>
-        <style type="text/css">
-        #detailView {
-        	border: solid 1px black;
-        	width: 320px;
-        	height: 130px;
-        	margin: 20px;
-        	padding: 20px;
-        }
-        #legendControl {
-        	border: solid 1px black;
-        	
-        }
-        #vizcontainerZoomed {
-        	border: solid 1px red;
-        	height: 240px;
-        	width: 320px;
-        	float: left;
-        	margin: 10px;
-        	padding: 10px;
-        }
-        #vizOverview {
-        	border: solid 1px red;
-        	height: 240px;
-        	width: 320px;
-        	float: left;
-        	background-image: url("overviewMockup0.png");
-        	margin: 10px;
-        	padding: 10px;
-        }
-        #vizWrapper {
-        	/* width: 1024px; */
-        	/*border: 1px solid black;*/
-        	overflow: hidden;
-        }
-        </style>
-</head>
-<body>
-	<hr />
-	<p>Input</p>
-	<form>
-	  Enter a date after 2009-04-01:
-	  <input type="date" id="startTime" value="2009-04-01" min="2009-04-01" max="2010-04-01"><br>
-	  Enter a date before 2010-04-01:
-	  <input type="date" id="endTime" value="2009-05-01" min="2009-04-01" max="2011-04-01"><br>
-	  Headcount less than:
-	  <input id="headCountLess" type="range" value="50" min="0" max="500" step="1" oninput="document.querySelector('#headCountLessLabel').innerHTML = value; doSubmit();" />
-	  <output for="headCountLess" id="headCountLessLabel">50</output>
-	  <br />
-	  Headcount more than:
-	  <input id="headCountMore" type="range" min="0" max="500" step="1" disabled oninput="updateHeadCountSlider()" />
-	  <output for="headCountMore" id="headCountMoreLabel">50</output>
-	  <p><a href="#" onClick='doSubmit();'>Update</a></p>
-	</form>
-	<div id="detailView">
-		<span style="width: 320px;"></span>
-	</div>
-	<div id="vizWrapper">
-		<div id="vizcontainerZoomed">
+ <html lang="en">
+	<head>
+		<style type="text/css">
+			#detailViewContainer {
+				border: solid 1px green;
+				float: left;
+			}
+			
+			#detailView {
+				border: solid 1px red;
+				height: 240px;
+				width: 320px;
+				float: left;
+				margin-left: 20px;
+			}
+			
+			#contextView {
+				border: solid 1px red;
+				height: 240px;
+				width: 320px;
+				float: left;
+/*				margin: 10px;
+				padding: 10px; */
+			}
+			
+			.area {
+			  fill: steelblue;
+			  clip-path: url(#clip);
+			}
+
+			.axis path,
+			.axis line {
+			  fill: none;
+			  stroke: #000;
+			  shape-rendering: crispEdges;
+			}
+
+			.brush .extent {
+			  stroke: #fff;
+			  fill-opacity: .125;
+			  shape-rendering: crispEdges;
+			}
+		</style>
+	</head>
+	<body>
+		<p id="#output">ho</p>
+		
+		<div id="detailViewContainer">
+			<div id="detailView">
+				<p>Hi</p>
+			</div>
+			
+		<br />
+		<hr />
+		<p>Input</p>
+		<form>
+		  <input type="date" id="startTime" value="2009-04-01" min="" max=""><br>
+		  <input type="date" id="endTime" value="2009-05-01" min="" max=""><br>
+		  yes_rsvp_count less than:
+		  <input id="yes_rsvp_countLess" type="range" value="50" min="0" max="500" step="1" oninput="document.querySelector('#yes_rsvp_countLessLabel').innerHTML = value" />
+		  <output for="yes_rsvp_countLess" id="yes_rsvp_countLessLabel">50</output>
+		  <br />
+		  yes_rsvp_count more than:
+		  <input id="yes_rsvp_countMore" type="range" value="50" min="0" max="500" step="1" oninput="document.querySelector('#yes_rsvp_countMoreLabel').innerHTML = value" />
+		  <output for="yes_rsvp_countMore" id="yes_rsvp_countMoreLabel">50</output>
+		  <p><a href="#" onClick='doDetailView()'>Update</a></p>
+		</form>
+			
 		</div>
-		<div id="vizOverview">
-			<p>TODO: Overview view, select area</p>
+		
+
+		<div id="contextView">
+		
 		</div>
-	</div>
-	
-	<script charset="utf-8">
-	
-function updateHeadCountSlider() {
-	
-	var headCountLess = document.querySelector('#headCountLess');
-	var headCountMore = document.querySelector('#headCountMore');
-	
-	if(headCountLess.value > headCountMore.value || headCountMore.value < headCountLess.value)
-		headCountMore.value = headCountLess.value + 1;
-	
-	document.querySelector('#headCountMoreLabel').value = headCountMore.value;
-	document.querySelector('#headCountLessLabel').value = headCountLess.value;
-	
-	//document.querySelector('#headCount').value = 5;
-	//document.querySelector('#volume').innerHTML = value;
-	//console.log("updated...");
-}
-	
-function doSubmit() {
-	
-	doVizZoomed();
-	
-}
+		
+		<script src="http://d3js.org/d3.v3.min.js"></script>
+		<script type="text/javascript" src="https://code.jquery.com/jquery-2.1.3.min.js"> </script>
+		<script>
+			
+			var contextStartDate = new Date("2009-01-01")
+			var contextEndDate = new Date("2010-01-01")
+			console.log(contextStartDate)
+						
+			doContextView()
+			
+			function doDetailView() {
+				var width = parseInt($("#detailView").css("width"));
+				var height = parseInt($("#detailView").css("height"));
+				
+				var startTime = document.getElementById("startTime").valueAsDate;
+				var endTime = document.getElementById("endTime").valueAsDate;
+				
+				//d3.select("#detailView").remove();
+				$("#detailView").empty()
+				
+				var svg = d3.select("#detailView")
+					.append("svg")
+						.attr("width", width)
+						.attr("height", height)
+				
+				//document.querySelector('#startTime')
+				
+				var xScale = d3.scale.linear()
+					.domain([startTime, endTime])
+					.range([0, width])
+				
+				var yScale = d3.scale.linear()
+					.domain([0, 40])
+					.range([0, height])
+				
+				color = d3.scale.ordinal()
+					.range(["#1f77b4", "#ff7f0e", "#2ca02c", "#d62728", "#9467bd", "#8c564b", "#e377c2"])
+					.domain([0,1,2,3,4,5,6])
+				
+				d3.json(
+				"/groups/?" +
+				"limit=150" + "&startTime="+ startTime +
+				"&endTime=" + endTime
+				,
+					function(err, data) {
+						if(err) {
+							console.warn("ERROR");
+							console.warn(err);
+							return;
+						}
+						console.log(data)
+						
+						svg.selectAll("circle")
+							.data(data)
+								.enter()
+									.append("circle")
+										.attr("r", "5")
+										.attr("fill", function(d) { return color(d.group.category.name) })
+										.attr("cx", function(d) {return xScale(d.time) })
+										.attr("cy", function(d) {return yScale(d.yes_rsvp_count + 5) })
+					}
+				)
+			}
+			
+			function doContextView() {
+				
+				
+				
+				var	contextView = document.querySelector('contextView');
+			
+				var top = parseInt($("#contextView").css("top"));
+				var left = 0;
+				//var left = $("#contextView").css("left")
+				//console.log(left);
+			
+				var width = parseInt($("#contextView").css("width"));
+				var height = parseInt($("#contextView").css("height"));
+			
+			
+				// The domain can be different here.
+				// Right now, just a direct mapping of pixels to pixels
+				/*
+				var	xScale = d3.scale.linear()
+					.domain([0, width])
+					.range([0, width])
+				*/
+				
+				var xScale = d3.time.scale()
+					.domain([contextStartDate, contextEndDate])
+					.range([0, width])
+				
+				var yScale = d3.scale.linear()
+					.domain([0, 500])
+					.range([height, 0])
+				/*
+				var	yScale = d3.scale.linear()
+					.domain([0, height])
+					.range([0, height])
+				*/
+				
+				var brush = d3.svg.brush()
+					.x(xScale)
+					.y(yScale)
+					.on("brush", brushed);
 
-function doDetailView(d) {
-	//console.log(d);
-	//console.log(color(d.group.category.id));
-	//console.log("In detail view:");
-	//console.log(d.group.category.shortname);
-	//console.log(color(d.group.category.id));
-	//var c = color(d.group.category.id); // THis works, strangely
-	//var c = d.group.category.id
-	var c = "black";
-	
-	d3.select("#detailView")
-		.select("span")
-		.html(
-		"Group name: " + d.name + "<br />" +
-		"Date: " + new Date(d.time) + "<br />" +
-		"<span style=\'color:" + c + "\'>Category:" + d.group.category.shortname
-		+ "</span>" + "<br />"
-		+ "Group id: " + d.group.id + "<br />"
-		+ "Headcount: " + d.headcount
-		);
-}
+				var contextSvg = d3.select("#contextView").append("svg")
+					.attr("width", width)
+					.attr("height", height);
 
-function doVisMonthBarChart() {
-	// http://104.237.146.70:8124/listcatagories
-	// #vizcontainerMonthBarChart
-	
-	var vizcontainerMonthBarChart = document.querySelector('#vizcontainerMonthBarChart');
-	
-	var width = $('#vizcontainerMonthBarChart').css("width");
-	var height = $('#vizcontainerMonthBarChart').css("height");
-	
-	
-}
+				  contextSvg.append("g")
+					  .attr("class", "brush")
+					  .call(brush)
+					.selectAll("rect")
+			
+			
+				// Axis
+				var	xAxis = d3.svg.axis().scale(xScale).orient("bottom")
+			
+				contextSvg.append("g")
+				  .attr("class", "x axis")
+				  .call(xAxis)
+			
+				var	yAxis = d3.svg.axis().scale(yScale).orient("left")
+			
+				contextSvg.append("g")
+					.attr("class", "y axis")
+					.call(yAxis)
+			
+				function brushed() {
+				  var extent = brush.extent();
+  
+				  var output = document.getElementById("#output");
+  
+				  output.innerHTML = ""
+				  output.innerHTML += "X1: " + extent[0][0]
+				  output.innerHTML += "<br />"
+				  output.innerHTML += "Y1: " + extent[0][1]
+				  output.innerHTML += "<br />"
+				  output.innerHTML += "X2: " + extent[1][0]
+				  output.innerHTML += "<br />"
+				  output.innerHTML += "Y2: " + extent[1][1]
+				  output.innerHTML += "<br />"
+				  
+				  // Extracting the time into YYYY-MM-DD that the field will accept
+				  
+				  // Setting start time field
+				  var startTimeInput = document.querySelector('#startTime')
+				  
+				  var newTime = "";
+				  newTime += extent[0][0].getFullYear()
+				  newTime += "-"
+				  newTime += String('0' + (parseInt(extent[0][0].getMonth())+1).toString()).slice(-2)
+				  newTime += "-"
+				  newTime += String('0' + extent[0][0].getDate()).slice(-2)
 
-function doLine(d, data, svg) {
-	
-	console.log(data);
-	
-	svg.append("svg:path")
-	  .attr("d", lineFunc(data))
-	  .attr("stroke", "blue")
-	  .attr("stroke-width", 2)
-	  .attr("fill", "none");
-}
+				  startTimeInput.value = newTime
+				  
+				  
+				  // Setting end time field
+				  var endTimeInput = document.querySelector('#endTime')
+				  
+				  newTime = "";
+				  newTime += extent[1][0].getFullYear()
+				  newTime += "-"
+				  newTime += String('0' + (parseInt(extent[1][0].getMonth())+1).toString()).slice(-2)
+				  newTime += "-"
+				  newTime += String('0' + extent[1][0].getDate()).slice(-2)
+				  
+				  endTimeInput.value = newTime
+				  
+				  // For #yes_rsvp_countLess
+				  
+				  // TODO Maybe round to int?
+				  
+				  var yes_rsvp_countLessInput = document.querySelector('#yes_rsvp_countLess')
+				  yes_rsvp_countLessInput.value = parseInt(extent[0][1])
+				  document.querySelector('#yes_rsvp_countLessLabel').innerHTML = parseInt(extent[0][1])
+				  
+				  var yes_rsvp_countMoreInput = document.querySelector('#yes_rsvp_countMore')
+				  yes_rsvp_countMoreInput.value = parseInt(extent[1][1])
+				  document.querySelector('#yes_rsvp_countMoreLabel').innerHTML = parseInt(extent[1][1])
+				}
+			}
 
-function doVizZoomed() {
-	
-	var vizcontainerZoomed = document.querySelector('#vizcontainerZoomed');
-	
-	var width = parseInt($("#vizcontainerZoomed").css("width"));
-	var height = parseInt($("#vizcontainerZoomed").css("height"));
-	
-	
-    var startTime = document.getElementById("startTime").valueAsDate;
-    var endTime = document.getElementById("endTime").valueAsDate;
-    var headCountLess = document.getElementById("headCountLess").value;
-    
-   // console.log("Start time:" + startTime);
-    
-    // Remove previous svg
-    d3.select("svg").remove(); 
-    
-    var svg = d3.select("#vizcontainerZoomed")
-    	.append("svg")
-    		//.attr("id", "#svg_id")
-    		.attr("width", width)
-    		.attr("height", height);
-    
-    // Generate scales
-    var scaleX = d3.scale.linear()
-    	.domain([startTime, endTime])
-    	.range([0, height]);
-    	
-    var scaleY = d3.scale.linear()
-    	.domain([0, headCountLess])
-    	.range([0, height]);
-    
-    
-    
-	//var myColor = d3.scale.category20b = function() {
-	//	return d3.scale.ordinal().range(d3_category20b);
-	//};
-    
-    
-    
-    // Probably can remove.
-    // This is something I should remember to do later, though
-    // that is, using nice()
-    var timeScale = d3.time.scale()
-    	.domain([startTime, endTime])
-    	//.nice(d3.time.month)
-    	.range([0, height]);
-    
-    
-    //console.log("Requesting: ");
-    //console.log("/groups/?" +
-    //"limit=20" + "&startTime="+ startTime.getTime().toString() +
-    //"&endTime=" + endTime.getTime().toString());
-    
-    
-    
-    //104.237.146.70:8124
-    d3.json(
-    "/groups/?" +
-    "limit=150" + "&startTime="+ startTime +
-    "&endTime=" + endTime
-    ,
-    function(err, data) {
-    	if(err) {
-    		console.warn("ERROR");
-    		console.warn(err);
-    		return;
-    	}
-		//console.log(data);
-		
-		
-		// Fix this later!
-		// DOES NOT CATEGORIZE all the colors
-		
-		color = d3.scale.ordinal()
-		.range(["#1f77b4", "#ff7f0e", "#2ca02c", "#d62728", "#9467bd", "#8c564b", "#e377c2"])
-		.domain([0,1,2,3,4,5,6])
-		
-		
-		//var color = d3.scale.category20c()
-		//	.domain(["food-drink","games","lgbt","government-politics","health-wellbeing","hobbies-crafts","language","lifestyle","literature-writing","arts-culture","movies-film","music","new-age-spirituality","outdoors-adventure","paranormal","parents-family","pets-animals","photography","religion-beliefs","sci-fi-fantasy","career-business","singles","socializing","sports-recreation","support","tech","women","cars-motorcycles","community-environment","dancing","education-learning","fashion-beauty","fitness"]);
-		
-		//console.log(data);
-		
-		
-		//myColor = d3.scale.category20b = function() {
-		//return d3.scale.ordinal().range(d3_category20b);
-		//};
-		
-		var lineFunc = d3.svg.line()
-			.x(function (d) {return scaleX(d.time); })
-			.y(function (d) {return scaleY(d.headcount);})
-			.interpolate('linear');
-	
-		svg.selectAll("circle")
-			.data(data).enter()
-				.append("circle")
-					.attr("r","5")
-					.attr("cx", function(d) {return scaleX(d.time); })
-					.attr("cy", function(d) {return scaleY(d.headcount + 5); })
-					//.attr("fill", function(d) {return color(d.group.category.name); console.log(d.group.category.name)} )
-					.attr("fill", function(d) {return color(d.group.category.name)} )
-					.on("mouseover", doDetailView)
-					.on("click", function(d) {
-						/*
-						svg.append("svg:path")
-						  .attr("d", lineFunc(data))
-						  .attr("stroke", "blue")
-						  .attr("stroke-width", 2)
-						  .attr("fill", "none");
-						  */
-					})
-					//.on("mouseover", function(d) {console.log(d); console.log(d.group.category.shortname)})
-    				
-		
-		//console.log(scaleX(function (d) {return 3}));
+	</script>
 
-		//var lineFunc = d3.svg.line()
-		//.scaleX(function (d) {return d.headcount})
-		//.scaleY(function (d) {return scaleY(d.headcount);})
-		//.interpolate('linear');
-		
-/*
-		svg.append("svg:path")
-		  .attr("d", lineFunc(data))
-		  .attr("stroke", "blue")
-		  .attr("stroke-width", 2)
-		  .attr("fill", "none");
-*/
-    });
-    
-	// Make the axis
-
-	
-	var xAxis = d3.svg.axis()
-		.scale(scaleX)
-		.orient("bottom")
-		.tickSize(0)
-		.tickFormat( d3.time.format('%Y-%m-%d'))
-		.tickValues([startTime, endTime]);
-	
-	svg.append("g").attr("class", "axis").call(xAxis);
-	
-
-	/*
-    var xAxis = d3.svg.axis().
-    scale(scaleX).
-    orient("bottom").
-    tickFormat(
-    function(d) { return d3.time.format('%b %d')(new Date(d)); });
-    
-    var yAxis = d3.svg.axis().scale(scaleY).orient("right");
-    
-    svg.append("g").attr("class", "axis").call(xAxis);
-    
-    svg.append("g").attr("class", "axis").call(yAxis); 
-    */
-}
-onLoad = doVizZoomed();
-    </script>
-</body>
-</html>
+	</body>
+ </html>
+ 

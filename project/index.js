@@ -66,9 +66,9 @@ function groupsHandler(request, response) {
 	var headCountLess = 10;
 	if(request.query.headCountLess)
 		headCountLess = request.query.headCountLess;
-	var headCountMore = 30;
-	if(request.query.headCountMore)
-		headCountMore = request.query.headCountMore;
+	var yes_rsvp_countMore = 30;
+	if(request.query.yes_rsvp_countMore)
+		yes_rsvp_countMore = request.query.yes_rsvp_countMore;
 	
 	var includeGroups;
 	if(request.query.includeGroups == "0")
@@ -90,9 +90,9 @@ function groupsHandler(request, response) {
 			//$gt: 1238544000000,
 			//$lt: new Date(2012, 7, 14)
 			},
-	headcount:
+	yes_rsvp_count:
 		{
-			$lt: headCountMore
+			$lt: yes_rsvp_countMore
 		}
 	},
 	{limit: limit},
