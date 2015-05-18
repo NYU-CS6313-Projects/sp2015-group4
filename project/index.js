@@ -49,7 +49,44 @@ app.get("/groups/*", groupsHandler);
 app.all("/getGroupFromId/*", allowAccessHeaders);
 app.get("/getGroupFromId/*", getGroupFromIdHandler);
 
+app.all("/getAllEventsForGroup/*", allowAccessHeaders);
+app.get("/getAllEventsForGroup/*", getAllEventsForGroupHandler);
+
 app.get("/favicon.ico", function (req, res) {res.end()} );
+
+function getAllEventsForGroupHandler(request, response) {
+	console.log("getAllEventsForGroupHandler")
+	
+	response.writeHead(200, {"Content-Type": "application/json"});
+	
+	var path = request.path.split("/");
+	var groupId = path.pop()
+	if(!groupId) {
+		response.end()
+		return
+	}
+	groupId = parseInt(groupId)
+	console.log("Trying to find group " + groupId)
+	getAllEventsForGroup(groupId, function(data) {response.write(JSON.stringify(data)); response.end()})
+}
+
+function getAllEventsForGroup(groupId, handler) {
+	db.collection('events').find({
+		'group.id': {$eq: groupId}
+	},
+	{time: 1, yes_rsvp_count: 1},
+	function(err, data) {
+		if(err) {
+			console.log("ERROR");
+			console.log(err);
+			return;
+		}
+		if(handler)
+		handler(data)
+	}
+	);
+}
+
 
 function getEventsForDayHandler(request, response) {
 	console.log("getEventsForDayHandler---")

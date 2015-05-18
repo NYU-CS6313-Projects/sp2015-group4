@@ -53,7 +53,7 @@
 			#contextView {
 				border: solid 1px red;
 				height: 240px;
-				width: 800px;
+				width: 900px;
 				top: 0px;
 				left: 0px;
 				float: left;
@@ -98,11 +98,11 @@
 				<form>
 				  <input type="date" id="startTime" value="2009-04-01" min="" max=""><br>
 				  <input type="date" id="endTime" value="2009-05-01" min="" max=""><br>
-				  yes_rsvp_count less than:<br />
+				  yes_rsvp_count more than:<br />
 				  <input id="yes_rsvp_countLess" type="range" value="50" min="0" max="500" step="1" oninput="document.querySelector('#yes_rsvp_countLessLabel').innerHTML = value" />
 				  <output for="yes_rsvp_countLess" id="yes_rsvp_countLessLabel">50</output>
 				  <br />
-				  yes_rsvp_count more than:<br />
+				  yes_rsvp_count less than:<br />
 				  <input id="yes_rsvp_countMore" type="range" value="50" min="0" max="500" step="1" oninput="document.querySelector('#yes_rsvp_countMoreLabel').innerHTML = value" />
 				  <output for="yes_rsvp_countMore" id="yes_rsvp_countMoreLabel">50</output>
 				  <p><a href="#" onClick='doDetailView()'>Update</a></p>
@@ -110,12 +110,11 @@
 				<!--
 				<a href="#" onClick='doLoading()'>Do Loading</a>
 				<a href="#" onClick='unDoLoading()'>Un Do Loading</a>
-				-->
 				<a href="#" onClick='getEventsForDay()'>Get Events</a>
+				-->
 			</div>
 			
 			<div id="detailView">
-				<p>Hi</p>
 			</div>
 			
 			<div id="loadingView">
@@ -159,7 +158,8 @@
 					"?startTime=" + document.getElementById("startTime").valueAsDate +
 					"&endTime=" + document.getElementById("endTime").valueAsDate,
 				function(err, data) {
-					console.log(data)
+					//console.log(data)
+
 				})
 			}
 			
@@ -243,7 +243,7 @@
 				
 				d3.json(
 				"/groups/?" +
-				"limit=750" + "&startTime="+ startTime +
+				"limit=350" + "&startTime="+ startTime +
 				"&endTime=" + endTime +
 				"&yes_rsvp_countMore=" + document.querySelector('#yes_rsvp_countMore').value +
 				"&yes_rsvp_countLess=" + document.querySelector('#yes_rsvp_countLess').value
@@ -283,15 +283,49 @@
 				
 				var svg = d3.select("#detailView")
 				
-				console.log(d)
+				//console.log(d)
 				//console.log(d)
 				groupView.innerHTML = "" +
 				"Selected group: " + d.group.name +
 				"SVG: " + svg
+				
+				//getAllEventsForGroupHandler
+				d3.json("/getAllEventsForGroup/" + d.group.id,
+				function(err, data) {
+					//console.log(data)
+					///---
+					///---
+					var	contextView = document.querySelector('contextView');
+			
+					var top = parseInt($("#contextView").css("top"));
+			
+					var width = parseInt($("#contextView").css("width"));
+					var height = parseInt($("#contextView").css("height"));
+			
+					var xScaleContext = d3.time.scale()
+						.domain([contextStartDate, contextEndDate])
+						.range([0, width])
+				
+					var yScaleContext = d3.scale.linear()
+						.domain([0, 500])
+						.range([height, 0])					
+					
+					var contextSvg = d3.select("#contextView")
+					
+					var line = d3.svg.line()
+						.x(function(d, i) {console.log(xScaleContext(d.time)); return xScaleContext(d.time)})
+						.y(function(d) {console.log(yScaleContext(d.yes_rsvp_count)); return yScaleContext(d.yes_rsvp_count)})
+					
+					contextSvg.append("svg:path").attr("d", line(data));
+					///---
+					
+					///---
+					
+					
+				})
 			}
 			
 			function doContextView() {
-				
 				
 				
 				var	contextView = document.querySelector('contextView');
@@ -307,11 +341,6 @@
 			
 				// The domain can be different here.
 				// Right now, just a direct mapping of pixels to pixels
-				/*
-				var	xScale = d3.scale.linear()
-					.domain([0, width])
-					.range([0, width])
-				*/
 				
 				var xScale = d3.time.scale()
 					.domain([contextStartDate, contextEndDate])
@@ -320,11 +349,10 @@
 				var yScale = d3.scale.linear()
 					.domain([0, 500])
 					.range([height, 0])
-				/*
-				var	yScale = d3.scale.linear()
-					.domain([0, height])
-					.range([0, height])
-				*/
+
+				var line = d3.svg.line()
+					.x(function(d, i) { return xScale(i)})
+					.y(function(d) {return yScale(d)})
 				
 				var brush = d3.svg.brush()
 					.x(xScale)
@@ -361,6 +389,7 @@
 				})
 				
 				///
+				/*
 				console.log("Trying to fetch date data")
 				
 				console.log("StartDate " + document.getElementById("startTime").valueAsDate)
@@ -378,7 +407,8 @@
 				
 				var endTimeStamp = contextEndDate.getTime()
 				endTimeStamp += day * 5
-				
+				*/
+				/*
 				d3.json("/getEventsForDay/" +
 //					"?startTime=" + document.getElementById("startTime").valueAsDate +
 //					"&endTime=" + document.getElementById("endTime").valueAsDate,
@@ -387,7 +417,7 @@
 				function(err, data) {
 					console.log(data)
 				})
-				
+				*/
 				///
 				
 				function brushed() {
