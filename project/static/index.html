@@ -135,6 +135,17 @@ function doVisMonthBarChart() {
 	
 }
 
+function doLine(d, data, svg) {
+	
+	console.log(data);
+	
+	svg.append("svg:path")
+	  .attr("d", lineFunc(data))
+	  .attr("stroke", "blue")
+	  .attr("stroke-width", 2)
+	  .attr("fill", "none");
+}
+
 function doVizZoomed() {
 	
 	var vizcontainerZoomed = document.querySelector('#vizcontainerZoomed');
@@ -223,6 +234,11 @@ function doVizZoomed() {
 		//myColor = d3.scale.category20b = function() {
 		//return d3.scale.ordinal().range(d3_category20b);
 		//};
+		
+		var lineFunc = d3.svg.line()
+			.x(function (d) {return scaleX(d.time); })
+			.y(function (d) {return scaleY(d.headcount);})
+			.interpolate('linear');
 	
 		svg.selectAll("circle")
 			.data(data).enter()
@@ -233,8 +249,16 @@ function doVizZoomed() {
 					//.attr("fill", function(d) {return color(d.group.category.name); console.log(d.group.category.name)} )
 					.attr("fill", function(d) {return color(d.group.category.name)} )
 					.on("mouseover", doDetailView)
+					.on("click", function(d) {
+						/*
+						svg.append("svg:path")
+						  .attr("d", lineFunc(data))
+						  .attr("stroke", "blue")
+						  .attr("stroke-width", 2)
+						  .attr("fill", "none");
+						  */
+					})
 					//.on("mouseover", function(d) {console.log(d); console.log(d.group.category.shortname)})
-    		
     				
 		
 		//console.log(scaleX(function (d) {return 3}));

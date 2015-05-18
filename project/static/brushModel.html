@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+ <html lang="en">
+	<head>
+		<style type="text/css">
+			
+			#contextView {
+				border: solid 1px red;
+				height: 240px;
+				width: 320px;
+				float: left;
+/*				margin: 10px;
+				padding: 10px; */
+			}
+			
+			.area {
+			  fill: steelblue;
+			  clip-path: url(#clip);
+			}
+
+			.axis path,
+			.axis line {
+			  fill: none;
+			  stroke: #000;
+			  shape-rendering: crispEdges;
+			}
+
+			.brush .extent {
+			  stroke: #fff;
+			  fill-opacity: .125;
+			  shape-rendering: crispEdges;
+			}
+		</style>
+	</head>
+	<body>
+		<p id="#output">ho</p>
+		<div id="contextView">
+		
+		</div>
+		<script src="http://d3js.org/d3.v3.min.js"></script>
+		<script type="text/javascript" src="https://code.jquery.com/jquery-2.1.3.min.js"> </script>
+		<script>
+		
+			var	contextView = document.querySelector('contextView');
+			
+			//var	margin = {top: 10, right: 10, bottom: 100, left: 40}
+			
+			var top = parseInt($("#contextView").css("top"));
+			var left = 0;
+			//var left = $("#contextView").css("left")
+			//console.log(left);
+			
+			var width = parseInt($("#contextView").css("width"));
+			var height = parseInt($("#contextView").css("height"));
+			
+			
+			// The domain can be different here.
+			// Right now, just a direct mapping of pixels to pixels
+			var	xScale = d3.scale.linear()
+				.domain([0, width])
+				.range([0, width])
+			
+			var	yScale = d3.scale.linear()
+				.domain([0, height])
+				.range([0, height])
+				
+							
+			var brush = d3.svg.brush()
+				.x(xScale)
+				.y(yScale)
+				.on("brush", brushed);
+
+			//var svg = d3.select("body").append("svg")
+			var svg = d3.select("#contextView").append("svg")
+				.attr("width", width)
+				.attr("height", height);
+
+			  svg.append("g")
+				  .attr("class", "brush")
+				  .call(brush)
+				.selectAll("rect")
+			
+			
+			// Axis
+			var	xAxis = d3.svg.axis().scale(xScale).orient("bottom")
+			
+			svg.append("g")
+			  .attr("class", "x axis")
+			  .call(xAxis)
+			
+			var	yAxis = d3.svg.axis().scale(yScale).orient("left")
+			
+			svg.append("g")
+				.attr("class", "y axis")
+				.call(yAxis)
+			
+			function brushed() {
+			  var extent = brush.extent();
+  
+			  var output = document.getElementById("#output");
+  
+			  output.innerHTML = ""
+			  output.innerHTML += "X1: " + extent[0][0]
+			  output.innerHTML += "<br />"
+			  output.innerHTML += "Y1: " + extent[0][1]
+			  output.innerHTML += "<br />"
+			  output.innerHTML += "X2: " + extent[1][0]
+			  output.innerHTML += "<br />"
+			  output.innerHTML += "Y2: " + extent[1][1]
+			  output.innerHTML += "<br />"
+			}
+
+	</script>
+
+	</body>
+ </html>
+ 
