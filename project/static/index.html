@@ -178,7 +178,9 @@
 				d3.json(
 				"/groups/?" +
 				"limit=150" + "&startTime="+ startTime +
-				"&endTime=" + endTime
+				"&endTime=" + endTime +
+				"&yes_rsvp_countMore=" + document.querySelector('#yes_rsvp_countMore').value +
+				"&yes_rsvp_countLess=" + document.querySelector('#yes_rsvp_countLess').value
 				,
 				function(err, data) {
 					if(err) {

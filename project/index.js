@@ -63,9 +63,10 @@ function groupsHandler(request, response) {
 	} else {
 		endTime = new Date(2011, 04, 01);
 	}
-	var headCountLess = 10;
-	if(request.query.headCountLess)
-		headCountLess = request.query.headCountLess;
+	var yes_rsvp_countLess = 10;
+	if(request.query.yes_rsvp_countLess)
+		yes_rsvp_countLess = request.query.yes_rsvp_countLess;
+		
 	var yes_rsvp_countMore = 30;
 	if(request.query.yes_rsvp_countMore)
 		yes_rsvp_countMore = request.query.yes_rsvp_countMore;
@@ -77,6 +78,13 @@ function groupsHandler(request, response) {
 		includeGroups = 1;
 		
 	response.writeHead(200, {"Content-Type": "application/json"});
+	
+	yes_rsvp_countLess = parseInt(yes_rsvp_countLess)
+	yes_rsvp_countMore = parseInt(yes_rsvp_countMore)
+	
+	//console.log(request.query)
+	//console.log("yes_rsvp_countMore: " + yes_rsvp_countMore)
+	//console.log("yes_rsvp_countLess: " + yes_rsvp_countLess)
 	
 	db.collection('events').find(
 	{
@@ -92,7 +100,8 @@ function groupsHandler(request, response) {
 			},
 	yes_rsvp_count:
 		{
-			$lt: yes_rsvp_countMore
+			$lt: yes_rsvp_countMore,
+			$gt: yes_rsvp_countLess
 		}
 	},
 	{limit: limit},
